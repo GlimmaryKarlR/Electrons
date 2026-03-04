@@ -3,260 +3,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universal Orbital Manifold Infographic</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <title>Universal Orbital Manifold | High-Fidelity Wavefunctions</title>
     <style>
         :root {
-            --bg: #0a0a0c;
-            --panel: #16161a;
-            --accent: #00f2ff;
-            --text: #e0e0e0;
-            --glass: rgba(255, 255, 255, 0.05);
+            --bg: #050508;
+            --panel: #0d0d12;
+            --accent: #00d2ff;
+            --text: #ffffff;
+            --secondary: #005f73;
         }
 
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             display: flex;
-            justify-content: center;
-            overflow-x: hidden;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
 
-        .container {
-            width: 95%;
-            max-width: 1200px;
-            padding: 20px;
-        }
-
-        header {
-            text-align: center;
-            border-bottom: 1px solid var(--accent);
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin: 0;
-        }
-
-        .main-grid {
+        .dashboard {
+            width: 90%;
+            max-width: 1100px;
+            margin-top: 20px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1.5fr 1fr;
             gap: 20px;
         }
 
-        /* Interactive Visualizer Area */
-        .visualizer-panel {
+        .viz-container {
             background: var(--panel);
-            border-radius: 15px;
-            height: 400px;
+            border-radius: 20px;
+            height: 500px;
             position: relative;
             display: flex;
-            align-items: center;
             justify-content: center;
-            border: 1px solid var(--glass);
+            align-items: center;
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
             overflow: hidden;
         }
 
-        .orbital-node {
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-            border-radius: 50%;
-            filter: blur(5px);
-            animation: pulse 4s infinite ease-in-out;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(2.5); opacity: 0.8; box-shadow: 0 0 50px var(--accent); }
-        }
-
-        /* Interactive Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .card {
-            background: var(--glass);
-            padding: 20px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1px solid transparent;
-            position: relative;
-        }
-
-        .card:hover {
-            background: rgba(0, 242, 255, 0.1);
-            border-color: var(--accent);
-            transform: translateY(-5px);
-        }
-
-        .card h3 {
-            margin: 0 0 10px 0;
-            font-size: 0.9rem;
-            color: var(--accent);
-        }
-
-        .formula {
-            display: none;
-            font-family: 'Courier New', Courier, monospace;
-            background: #000;
-            padding: 5px;
-            margin-top: 10px;
-            font-size: 0.8rem;
-        }
-
-        .card:hover .formula {
-            display: block;
-        }
-
-        /* Phase Transition Section */
-        .timeline-section {
-            margin-top: 30px;
-            background: var(--panel);
-            padding: 20px;
-            border-radius: 15px;
-        }
-
-        .slider-container {
+        #orbital-canvas {
             width: 100%;
-            margin: 20px 0;
+            height: 100%;
+        }
+
+        .controls {
+            background: var(--panel);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        h1 {
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent);
+            padding-left: 15px;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+        }
+
+        .slider-wrap {
+            margin-top: 30px;
         }
 
         input[type=range] {
             width: 100%;
+            accent-color: var(--accent);
             cursor: pointer;
         }
 
-        #phase-label {
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .data-readout {
-            display: flex;
-            justify-content: space-around;
-            font-family: monospace;
-            font-size: 1.2rem;
-            background: rgba(0,0,0,0.3);
-            padding: 15px;
-            border-radius: 5px;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 40px;
+        .formula-card {
+            font-family: 'Courier New', monospace;
             font-size: 0.8rem;
-            opacity: 0.6;
+            background: #000;
+            padding: 10px;
+            border-radius: 5px;
+            color: #00ff41;
+            margin-top: 15px;
+        }
+
+        .nodal-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 210, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            border: 1px solid var(--accent);
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>Universal Orbital Manifold</h1>
-        <p>Topological Morphogenesis of Elements Z=1 to Z=118</p>
-    </header>
-
-    <div class="main-grid">
-        <div class="visualizer-panel" id="viz">
-            <div class="orbital-node" id="node"></div>
-            <div style="position: absolute; bottom: 10px; right: 10px; font-size: 0.7rem;">LIVE MESH VISUALIZATION (P<sup>0.55</sup>)</div>
-        </div>
-
-        <div class="stats-grid">
-            <div class="card">
-                <h3><i class="fas fa-wave-square"></i> Radial Contraction</h3>
-                <div class="val" id="r-val">356.34 m</div>
-                <div class="formula">r ∝ (n² a₀) / Z_eff</div>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-bolt"></i> Energy Proxy</h3>
-                <div class="val" id="e-val">191.80 J</div>
-                <div class="formula">E ∝ √(R² + G² + B²)</div>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-arrows-spin"></i> Angular Flux</h3>
-                <div class="val" id="a-val">28.59 rad</div>
-                <div class="formula">Ω = θ / Δt</div>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-vector-square"></i> Point Density</h3>
-                <div class="val" id="p-val">403 pts</div>
-                <div class="formula">N_pts ∝ 2(2l + 1)</div>
-            </div>
-        </div>
+<div class="dashboard">
+    <div class="viz-container">
+        <div class="nodal-indicator" id="nodal-type">Angular Node: l=0 (Spherical)</div>
+        <canvas id="orbital-canvas"></canvas>
     </div>
 
-    <div class="timeline-section">
-        <h2>Temporal Morphing Sequence</h2>
-        <p>Adjust the slider to simulate the manifold transition from Hydrogen through the Periodic Table.</p>
-        <div class="slider-container">
-            <input type="range" min="1" max="118" value="1" id="t-slider">
+    <div class="controls">
+        <h1>Unitary Morphogenesis</h1>
+        
+        <div class="stat-box">
+            <div class="stat-label">Element / Atomic Number</div>
+            <div class="stat-value" id="disp-element">Hydrogen (Z=1)</div>
         </div>
-        <div class="data-readout">
-            <div>ELEMENT: <span id="elem-name">Hydrogen (Z=1)</span></div>
-            <div>STATUS: <span id="phase-label">S-Shell Ground State</span></div>
+
+        <div class="stat-box">
+            <div class="stat-label">Quantum State (n, l, m)</div>
+            <div class="stat-value" id="disp-quantum">n=1, l=0, m=0</div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-label">Normalization (Power-Law)</div>
+            <div class="stat-value">P<sup>0.55</sup></div>
+        </div>
+
+        <div class="formula-card" id="disp-formula">
+            ψ(r,θ,φ) = R(r)Y(θ,φ)
+        </div>
+
+        <div class="slider-wrap">
+            <label style="font-size: 0.8rem;">Adjust Atomic Manifold (Z=1 to 118):</label>
+            <input type="range" min="1" max="118" value="1" id="z-slider">
         </div>
     </div>
-
-    <footer>
-        &copy; 2024 Unitary Morphogenesis Research Group | Dataset: Merged_E_Vectors_Global
-    </footer>
 </div>
 
 <script>
-    const slider = document.getElementById('t-slider');
-    const elemName = document.getElementById('elem-name');
-    const phaseLabel = document.getElementById('phase-label');
-    const rVal = document.getElementById('r-val');
-    const eVal = document.getElementById('e-val');
-    const node = document.getElementById('node');
-
-    const elementData = [
-        {name: "Hydrogen", z: 1, phase: "1s Orbital", r: "356.34", e: "191.80", color: "#00f2ff"},
-        {name: "Neon", z: 10, phase: "2p Stabilization", r: "235.00", e: "225.86", color: "#ff0080"},
-        {name: "Iron", z: 26, phase: "3d Transition", r: "186.40", e: "245.10", color: "#ffae00"},
-        {name: "Gold", z: 79, phase: "5d Relativistic", r: "142.10", e: "280.44", color: "#e1ff00"},
-        {name: "Oganesson", z: 118, phase: "7p Culmination", r: "110.05", e: "310.22", color: "#8c00ff"}
+    const canvas = document.getElementById('orbital-canvas');
+    const ctx = canvas.getContext('2d');
+    const slider = document.getElementById('z-slider');
+    
+    // --- DATA FROM PYTHON SCRIPT ---
+    const AUFBAU_ORDER = [
+        {n:1, l:0, max:2}, {n:2, l:0, max:2}, {n:2, l:1, max:6}, {n:3, l:0, max:2}, 
+        {n:3, l:1, max:6}, {n:4, l:0, max:2}, {n:3, l:2, max:10}, {n:4, l:1, max:6},
+        {n:5, l:0, max:2}, {n:4, l:2, max:10}, {n:5, l:1, max:6}, {n:6, l:0, max:2}, 
+        {n:4, l:3, max:14}, {n:5, l:2, max:10}, {n:6, l:1, max:6}, {n:7, l:0, max:2},
+        {n:5, l:3, max:14}, {n:6, l:2, max:10}, {n:7, l:1, max:6}
     ];
 
-    slider.addEventListener('input', (e) => {
-        const z = parseInt(e.target.value);
-        let data = elementData[0];
-        
-        // Find closest metadata for visualization
-        for(let i = elementData.length -1; i >= 0; i--) {
-            if (z >= elementData[i].z) {
-                data = elementData[i];
+    const elementNames = ["Hydrogen","Helium","Lithium","Beryllium","Boron","Carbon","Nitrogen","Oxygen","Fluorine","Neon","Sodium","Magnesium","Aluminum","Silicon","Phosphorus","Sulfur","Chlorine","Argon","Potassium","Calcium","Scandium","Titanium","Vanadium","Chromium","Manganese","Iron","Cobalt","Nickel","Copper","Zinc","Gallium","Germanium","Arsenic","Selenium","Bromine","Krypton","Rubidium","Strontium","Yttrium","Zirconium","Niobium","Molybdenum","Technetium","Ruthenium","Rhodium","Palladium","Silver","Cadmium","Indium","Tin","Antimony","Tellurium","Iodine","Xenon","Cesium","Barium","Lanthanum","Cerium","Praseodymium","Neodymium","Promethium","Samarium","Europium","Gadolinium","Terbium","Dysprosium","Holmium","Errbium","Thulium","Ytterbium","Lutetium","Hafnium","Tantalum","Tungsten","Rhenium","Osmium","Iridium","Platinum","Gold","Mercury","Thallium","Lead","Bismuth","Polonium","Astatine","Radon","Francium","Radium","Actinium","Thorium","Protactinium","Uranium","Neptunium","Plutonium","Americium","Curium","Berkelium","Californium","Einsteinium","Fermium","Mendelevium","Nobelium","Lawrencium","Rutherfordium","Dubnium","Seaborgium","Bohrium","Hassium","Meitnerium","Darmstadtium","Roentgenium","Copernicium","Nihonium","Flerovium","Moscovium","Livermorium","Tennessine","Oganesson"];
+
+    function getQuantumNumbers(z) {
+        let remaining = z;
+        let lastN = 1, lastL = 0;
+        for (let shell of AUFBAU_ORDER) {
+            if (remaining <= shell.max) {
+                lastN = shell.n;
+                lastL = shell.l;
                 break;
             }
+            remaining -= shell.max;
         }
+        // Simplified m selection logic for visualization
+        let m = (lastL > 0) ? Math.floor(Math.random() * (2 * lastL + 1)) - lastL : 0;
+        return { n: lastN, l: lastL, m: 0 }; // m=0 often gives the 'donut' in d-orbitals
+    }
 
-        elemName.innerText = `${data.name} (Z=${z})`;
-        phaseLabel.innerText = data.phase;
-        rVal.innerText = `${(parseFloat(data.r) - (z * 0.5)).toFixed(2)} m`;
-        eVal.innerText = `${(parseFloat(data.e) + (z * 0.8)).toFixed(2)} J`;
+    function drawOrbital(n, l, m) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const time = Date.now() * 0.002;
+
+        // P^0.55 Normalization effect
+        const baseAlpha = 0.55;
         
-        // Dynamic node styling
-        node.style.background = `radial-gradient(circle, ${data.color} 0%, transparent 70%)`;
-        node.style.animationDuration = `${4 / (z * 0.1)}s`;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#00d2ff';
+
+        if (l === 0) { // s-orbital (Sphere)
+            const radius = 40 + (n * 15);
+            let gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+            gradient.addColorStop(0, `rgba(0, 210, 255, 1)`);
+            gradient.addColorStop(1, `rgba(0, 210, 255, 0)`);
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius * (1 + Math.sin(time)*0.05), 0, Math.PI * 2);
+            ctx.fill();
+        } 
+        else if (l === 1) { // p-orbital (Teardrops/Dumbbell)
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(time * 0.2);
+            for (let i = 0; i < 2; i++) {
+                ctx.rotate(Math.PI);
+                let grad = ctx.createRadialGradient(0, 50, 0, 0, 50, 60);
+                grad.addColorStop(0, '#00d2ff');
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.ellipse(0, 60, 40, 70, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+        else if (l === 2) { // d-orbital (Clovers and Donuts)
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(time * 0.3);
+            // Draw central donut (toroid)
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 70, 25, 0, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(0, 210, 255, 0.8)';
+            ctx.lineWidth = 15;
+            ctx.stroke();
+            // Draw teardrop lobes
+            for (let i = 0; i < 2; i++) {
+                ctx.rotate(Math.PI);
+                let grad = ctx.createRadialGradient(0, 80, 0, 0, 80, 50);
+                grad.addColorStop(0, '#00d2ff');
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.ellipse(0, 90, 30, 60, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+        else { // f-orbital (Complex)
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(time * 0.5);
+            for (let i = 0; i < 6; i++) {
+                ctx.rotate(Math.PI / 3);
+                ctx.fillStyle = 'rgba(0, 210, 255, 0.6)';
+                ctx.beginPath();
+                ctx.ellipse(0, 70, 20, 50, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+    }
+
+    function update() {
+        const z = parseInt(slider.value);
+        const {n, l, m} = getQuantumNumbers(z);
         
-        // Simulating the P^0.55 contraction visually
-        const scale = 1 + (z / 150);
-        node.style.transform = `scale(${scale})`;
-    });
+        document.getElementById('disp-element').innerText = `${elementNames[z-1]} (Z=${z})`;
+        document.getElementById('disp-quantum').innerText = `n=${n}, l=${l}, m=${m}`;
+        
+        const labels = ["s-Shell (Spherical)", "p-Block (Teardrops)", "d-Block (Donuts/Clovers)", "f-Block (Complex Manifold)"];
+        document.getElementById('nodal-type').innerText = `Angular Node: l=${l} ${labels[l] || ""}`;
+
+        // Dynamic formula update
+        const formulas = [
+            "ψ = (1/√π)e⁻ʳ", 
+            "ψ = (1/2√6)re⁻ʳ/²cosθ", 
+            "ψ = (1/81√6π)r²e⁻ʳ/³(3cos²θ-1)",
+            "ψ = complex_harmonic(l=3)"
+        ];
+        document.getElementById('disp-formula').innerText = formulas[l] || formulas[0];
+
+        drawOrbital(n, l, m);
+        requestAnimationFrame(update);
+    }
+
+    // Initialize
+    canvas.width = 600;
+    canvas.height = 500;
+    update();
+
 </script>
-
 </body>
 </html>
