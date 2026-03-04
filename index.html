@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Orbital Manifold Infographic</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --panel: #16161a;
+            --accent: #00f2ff;
+            --text: #e0e0e0;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 1px solid var(--accent);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin: 0;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Interactive Visualizer Area */
+        .visualizer-panel {
+            background: var(--panel);
+            border-radius: 15px;
+            height: 400px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--glass);
+            overflow: hidden;
+        }
+
+        .orbital-node {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(5px);
+            animation: pulse 4s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(2.5); opacity: 0.8; box-shadow: 0 0 50px var(--accent); }
+        }
+
+        /* Interactive Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .card {
+            background: var(--glass);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        .card:hover {
+            background: rgba(0, 242, 255, 0.1);
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            margin: 0 0 10px 0;
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        .formula {
+            display: none;
+            font-family: 'Courier New', Courier, monospace;
+            background: #000;
+            padding: 5px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+        }
+
+        .card:hover .formula {
+            display: block;
+        }
+
+        /* Phase Transition Section */
+        .timeline-section {
+            margin-top: 30px;
+            background: var(--panel);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .slider-container {
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        input[type=range] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        #phase-label {
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .data-readout {
+            display: flex;
+            justify-content: space-around;
+            font-family: monospace;
+            font-size: 1.2rem;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Universal Orbital Manifold</h1>
+        <p>Topological Morphogenesis of Elements Z=1 to Z=118</p>
+    </header>
+
+    <div class="main-grid">
+        <div class="visualizer-panel" id="viz">
+            <div class="orbital-node" id="node"></div>
+            <div style="position: absolute; bottom: 10px; right: 10px; font-size: 0.7rem;">LIVE MESH VISUALIZATION (P<sup>0.55</sup>)</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="card">
+                <h3><i class="fas fa-wave-square"></i> Radial Contraction</h3>
+                <div class="val" id="r-val">356.34 m</div>
+                <div class="formula">r ∝ (n² a₀) / Z_eff</div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-bolt"></i> Energy Proxy</h3>
+                <div class="val" id="e-val">191.80 J</div>
+                <div class="formula">E ∝ √(R² + G² + B²)</div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-arrows-spin"></i> Angular Flux</h3>
+                <div class="val" id="a-val">28.59 rad</div>
+                <div class="formula">Ω = θ / Δt</div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-vector-square"></i> Point Density</h3>
+                <div class="val" id="p-val">403 pts</div>
+                <div class="formula">N_pts ∝ 2(2l + 1)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="timeline-section">
+        <h2>Temporal Morphing Sequence</h2>
+        <p>Adjust the slider to simulate the manifold transition from Hydrogen through the Periodic Table.</p>
+        <div class="slider-container">
+            <input type="range" min="1" max="118" value="1" id="t-slider">
+        </div>
+        <div class="data-readout">
+            <div>ELEMENT: <span id="elem-name">Hydrogen (Z=1)</span></div>
+            <div>STATUS: <span id="phase-label">S-Shell Ground State</span></div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 Unitary Morphogenesis Research Group | Dataset: Merged_E_Vectors_Global
+    </footer>
+</div>
+
+<script>
+    const slider = document.getElementById('t-slider');
+    const elemName = document.getElementById('elem-name');
+    const phaseLabel = document.getElementById('phase-label');
+    const rVal = document.getElementById('r-val');
+    const eVal = document.getElementById('e-val');
+    const node = document.getElementById('node');
+
+    const elementData = [
+        {name: "Hydrogen", z: 1, phase: "1s Orbital", r: "356.34", e: "191.80", color: "#00f2ff"},
+        {name: "Neon", z: 10, phase: "2p Stabilization", r: "235.00", e: "225.86", color: "#ff0080"},
+        {name: "Iron", z: 26, phase: "3d Transition", r: "186.40", e: "245.10", color: "#ffae00"},
+        {name: "Gold", z: 79, phase: "5d Relativistic", r: "142.10", e: "280.44", color: "#e1ff00"},
+        {name: "Oganesson", z: 118, phase: "7p Culmination", r: "110.05", e: "310.22", color: "#8c00ff"}
+    ];
+
+    slider.addEventListener('input', (e) => {
+        const z = parseInt(e.target.value);
+        let data = elementData[0];
+        
+        // Find closest metadata for visualization
+        for(let i = elementData.length -1; i >= 0; i--) {
+            if (z >= elementData[i].z) {
+                data = elementData[i];
+                break;
+            }
+        }
+
+        elemName.innerText = `${data.name} (Z=${z})`;
+        phaseLabel.innerText = data.phase;
+        rVal.innerText = `${(parseFloat(data.r) - (z * 0.5)).toFixed(2)} m`;
+        eVal.innerText = `${(parseFloat(data.e) + (z * 0.8)).toFixed(2)} J`;
+        
+        // Dynamic node styling
+        node.style.background = `radial-gradient(circle, ${data.color} 0%, transparent 70%)`;
+        node.style.animationDuration = `${4 / (z * 0.1)}s`;
+        
+        // Simulating the P^0.55 contraction visually
+        const scale = 1 + (z / 150);
+        node.style.transform = `scale(${scale})`;
+    });
+</script>
+
+</body>
+</html>
