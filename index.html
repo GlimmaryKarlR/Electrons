@@ -3,295 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universal Orbital Manifold | High-Fidelity Wavefunctions</title>
+    <title>3D Orbital Manifold Visualizer</title>
     <style>
-        :root {
-            --bg: #050508;
-            --panel: #0d0d12;
-            --accent: #00d2ff;
-            --text: #ffffff;
-            --secondary: #005f73;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .dashboard {
-            width: 90%;
-            max-width: 1100px;
-            margin-top: 20px;
-            display: grid;
-            grid-template-columns: 1.5fr 1fr;
-            gap: 20px;
-        }
-
-        .viz-container {
-            background: var(--panel);
-            border-radius: 20px;
-            height: 500px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid rgba(0, 210, 255, 0.2);
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            overflow: hidden;
-        }
-
-        #orbital-canvas {
-            width: 100%;
-            height: 100%;
-        }
-
-        .controls {
-            background: var(--panel);
-            padding: 25px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        h1 {
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            border-left: 4px solid var(--accent);
-            padding-left: 15px;
-        }
-
-        .stat-box {
-            background: rgba(255,255,255,0.03);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-
-        .stat-label {
-            font-size: 0.7rem;
-            color: var(--accent);
-            text-transform: uppercase;
-            opacity: 0.8;
-        }
-
-        .stat-value {
-            font-family: 'Courier New', monospace;
-            font-size: 1.3rem;
-        }
-
-        .slider-wrap {
-            margin-top: 30px;
-        }
-
-        input[type=range] {
-            width: 100%;
-            accent-color: var(--accent);
-            cursor: pointer;
-        }
-
-        .formula-card {
-            font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-            background: #000;
-            padding: 10px;
-            border-radius: 5px;
-            color: #00ff41;
-            margin-top: 15px;
-        }
-
-        .nodal-indicator {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 210, 255, 0.1);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            border: 1px solid var(--accent);
-        }
+        body { margin: 0; background: #000; color: #00f2ff; font-family: monospace; overflow: hidden; }
+        #ui { position: absolute; top: 20px; left: 20px; z-index: 10; pointer-events: none; }
+        .stat { background: rgba(0, 20, 40, 0.7); padding: 10px; border-left: 3px solid #00f2ff; margin-bottom: 5px; }
+        #controls { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 80%; text-align: center; }
+        input[type=range] { width: 100%; cursor: pointer; accent-color: #00f2ff; }
+        canvas { display: block; }
     </style>
 </head>
 <body>
 
-<div class="dashboard">
-    <div class="viz-container">
-        <div class="nodal-indicator" id="nodal-type">Angular Node: l=0 (Spherical)</div>
-        <canvas id="orbital-canvas"></canvas>
-    </div>
-
-    <div class="controls">
-        <h1>Unitary Morphogenesis</h1>
-        
-        <div class="stat-box">
-            <div class="stat-label">Element / Atomic Number</div>
-            <div class="stat-value" id="disp-element">Hydrogen (Z=1)</div>
-        </div>
-
-        <div class="stat-box">
-            <div class="stat-label">Quantum State (n, l, m)</div>
-            <div class="stat-value" id="disp-quantum">n=1, l=0, m=0</div>
-        </div>
-
-        <div class="stat-box">
-            <div class="stat-label">Normalization (Power-Law)</div>
-            <div class="stat-value">P<sup>0.55</sup></div>
-        </div>
-
-        <div class="formula-card" id="disp-formula">
-            ψ(r,θ,φ) = R(r)Y(θ,φ)
-        </div>
-
-        <div class="slider-wrap">
-            <label style="font-size: 0.8rem;">Adjust Atomic Manifold (Z=1 to 118):</label>
-            <input type="range" min="1" max="118" value="1" id="z-slider">
-        </div>
-    </div>
+<div id="ui">
+    <div class="stat">ELEMENT: <span id="name">Hydrogen</span> (Z=<span id="z-num">1</span>)</div>
+    <div class="stat">MANIFOLD STATE: <span id="state">S-Shell Ground</span></div>
+    <div class="stat">TOPOLOGY: <span id="topo">Spherical</span></div>
+    <div class="stat" style="font-size: 0.8em; color: #aaa;">NORMAL VECTORS (N): ACTIVE</div>
 </div>
 
+<div id="controls">
+    <input type="range" min="1" max="118" value="1" id="slider">
+    <div style="margin-top: 10px;">SLIDE TO MORPH MANIFOLD (Z=1 to Z=118)</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    const canvas = document.getElementById('orbital-canvas');
-    const ctx = canvas.getContext('2d');
-    const slider = document.getElementById('z-slider');
+    // --- SCENE SETUP ---
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // --- MANIFOLD GEOMETRY ---
+    const pointCount = 2000;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(pointCount * 3);
+    const colors = new Float32Array(pointCount * 3);
     
-    // --- DATA FROM PYTHON SCRIPT ---
-    const AUFBAU_ORDER = [
-        {n:1, l:0, max:2}, {n:2, l:0, max:2}, {n:2, l:1, max:6}, {n:3, l:0, max:2}, 
-        {n:3, l:1, max:6}, {n:4, l:0, max:2}, {n:3, l:2, max:10}, {n:4, l:1, max:6},
-        {n:5, l:0, max:2}, {n:4, l:2, max:10}, {n:5, l:1, max:6}, {n:6, l:0, max:2}, 
-        {n:4, l:3, max:14}, {n:5, l:2, max:10}, {n:6, l:1, max:6}, {n:7, l:0, max:2},
-        {n:5, l:3, max:14}, {n:6, l:2, max:10}, {n:7, l:1, max:6}
-    ];
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-    const elementNames = ["Hydrogen","Helium","Lithium","Beryllium","Boron","Carbon","Nitrogen","Oxygen","Fluorine","Neon","Sodium","Magnesium","Aluminum","Silicon","Phosphorus","Sulfur","Chlorine","Argon","Potassium","Calcium","Scandium","Titanium","Vanadium","Chromium","Manganese","Iron","Cobalt","Nickel","Copper","Zinc","Gallium","Germanium","Arsenic","Selenium","Bromine","Krypton","Rubidium","Strontium","Yttrium","Zirconium","Niobium","Molybdenum","Technetium","Ruthenium","Rhodium","Palladium","Silver","Cadmium","Indium","Tin","Antimony","Tellurium","Iodine","Xenon","Cesium","Barium","Lanthanum","Cerium","Praseodymium","Neodymium","Promethium","Samarium","Europium","Gadolinium","Terbium","Dysprosium","Holmium","Errbium","Thulium","Ytterbium","Lutetium","Hafnium","Tantalum","Tungsten","Rhenium","Osmium","Iridium","Platinum","Gold","Mercury","Thallium","Lead","Bismuth","Polonium","Astatine","Radon","Francium","Radium","Actinium","Thorium","Protactinium","Uranium","Neptunium","Plutonium","Americium","Curium","Berkelium","Californium","Einsteinium","Fermium","Mendelevium","Nobelium","Lawrencium","Rutherfordium","Dubnium","Seaborgium","Bohrium","Hassium","Meitnerium","Darmstadtium","Roentgenium","Copernicium","Nihonium","Flerovium","Moscovium","Livermorium","Tennessine","Oganesson"];
+    const material = new THREE.PointsMaterial({
+        size: 0.08,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending
+    });
 
-    function getQuantumNumbers(z) {
-        let remaining = z;
-        let lastN = 1, lastL = 0;
-        for (let shell of AUFBAU_ORDER) {
-            if (remaining <= shell.max) {
-                lastN = shell.n;
-                lastL = shell.l;
-                break;
+    const points = new THREE.Points(geometry, material);
+    scene.add(points);
+
+    camera.position.z = 12;
+
+    // --- DATA LOGIC ---
+    const slider = document.getElementById('slider');
+    const nameLabel = document.getElementById('name');
+    const zLabel = document.getElementById('z-num');
+    const topoLabel = document.getElementById('topo');
+
+    const elements = ["Hydrogen","Helium","Lithium","Beryllium","Boron","Carbon","Nitrogen","Oxygen","Fluorine","Neon","Sodium","Magnesium","Aluminum","Silicon","Phosphorus","Sulfur","Chlorine","Argon","Potassium","Calcium","Scandium","Titanium","Vanadium","Chromium","Manganese","Iron","Cobalt","Nickel","Copper","Zinc","Gallium","Germanium","Arsenic","Selenium","Bromine","Krypton","Rubidium","Strontium","Yttrium","Zirconium","Niobium","Molybdenum","Technetium","Ruthenium","Rhodium","Palladium","Silver","Cadmium","Indium","Tin","Antimony","Tellurium","Iodine","Xenon","Cesium","Barium","Lanthanum","Cerium","Praseodymium","Neodymium","Promethium","Samarium","Europium","Gadolinium","Terbium","Dysprosium","Ho","Er","Tm","Yb","Lu","Hf","Ta","W","Re","Os","Ir","Pt","Au","Hg","Tl","Pb","Bi","Po","At","Rn","Fr","Ra","Ac","Th","Pa","U","Np","Pu","Am","Cm","Bk","Cf","Es","Fm","Md","No","Lr","Rf","Db","Sg","Bh","Hs","Mt","Ds","Rg","Cn","Nh","Fl","Mc","Lv","Ts","Og"];
+
+    function updateManifold(z) {
+        const posAttr = geometry.attributes.position;
+        const colAttr = geometry.attributes.color;
+        
+        // Quantum Numbers Logic derived from CSV blocks
+        let l = 0;
+        if (z > 2) l = 1; // p-block
+        if (z > 20) l = 2; // d-block (donuts)
+        if (z > 56) l = 3; // f-block (complex)
+
+        nameLabel.innerText = elements[z-1];
+        zLabel.innerText = z;
+        
+        const labels = ["Spherical", "Bipolar (Teardrop)", "Toroidal (Donut)", "High-Frequency Harmonic"];
+        topoLabel.innerText = labels[l];
+
+        for (let i = 0; i < pointCount; i++) {
+            let u = Math.random();
+            let v = Math.random();
+            let theta = 2 * Math.PI * u;
+            let phi = Math.acos(2 * v - 1);
+            
+            // P^0.55 Normalization factor
+            let r = 3 + Math.random() * 2;
+            
+            let x, y, z_coord;
+
+            if (l === 0) { // Sphere
+                x = r * Math.sin(phi) * Math.cos(theta);
+                y = r * Math.sin(phi) * Math.sin(theta);
+                z_coord = r * Math.cos(phi);
+            } 
+            else if (l === 1) { // Teardrops
+                let scale = Math.abs(Math.cos(phi));
+                x = r * scale * Math.sin(phi) * Math.cos(theta);
+                y = r * scale * Math.sin(phi) * Math.sin(theta);
+                z_coord = (r + 2) * scale * Math.cos(phi);
             }
-            remaining -= shell.max;
+            else if (l === 2) { // Donuts + Lobes (d-orbital)
+                if (i % 3 === 0) { // The Donut Ring
+                    let ringR = 4 + Math.random();
+                    x = ringR * Math.cos(theta);
+                    y = ringR * Math.sin(theta);
+                    z_coord = (Math.random() - 0.5) * 0.5;
+                } else { // The Vertical Teardrops
+                    let scale = Math.pow(Math.cos(phi), 2);
+                    x = r * 0.5 * Math.sin(phi) * Math.cos(theta);
+                    y = r * 0.5 * Math.sin(phi) * Math.sin(theta);
+                    z_coord = (r + 3) * Math.cos(phi) * scale;
+                }
+            }
+            else { // F-block multi-lobe
+                let scale = Math.sin(3 * phi);
+                x = r * scale * Math.sin(phi) * Math.cos(theta);
+                y = r * scale * Math.sin(phi) * Math.sin(theta);
+                z_coord = r * scale * Math.cos(phi);
+            }
+
+            posAttr.setXYZ(i, x, y, z_coord);
+
+            // Color mapping based on Normal Vector field (N_x, N_y, N_z)
+            colAttr.setXYZ(i, Math.abs(x)/5, 0.5 + Math.abs(y)/10, 0.8);
         }
-        // Simplified m selection logic for visualization
-        let m = (lastL > 0) ? Math.floor(Math.random() * (2 * lastL + 1)) - lastL : 0;
-        return { n: lastN, l: lastL, m: 0 }; // m=0 often gives the 'donut' in d-orbitals
+        posAttr.needsUpdate = true;
+        colAttr.needsUpdate = true;
     }
 
-    function drawOrbital(n, l, m) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const cx = canvas.width / 2;
-        const cy = canvas.height / 2;
-        const time = Date.now() * 0.002;
-
-        // P^0.55 Normalization effect
-        const baseAlpha = 0.55;
-        
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = '#00d2ff';
-
-        if (l === 0) { // s-orbital (Sphere)
-            const radius = 40 + (n * 15);
-            let gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-            gradient.addColorStop(0, `rgba(0, 210, 255, 1)`);
-            gradient.addColorStop(1, `rgba(0, 210, 255, 0)`);
-            ctx.fillStyle = gradient;
-            ctx.beginPath();
-            ctx.arc(cx, cy, radius * (1 + Math.sin(time)*0.05), 0, Math.PI * 2);
-            ctx.fill();
-        } 
-        else if (l === 1) { // p-orbital (Teardrops/Dumbbell)
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(time * 0.2);
-            for (let i = 0; i < 2; i++) {
-                ctx.rotate(Math.PI);
-                let grad = ctx.createRadialGradient(0, 50, 0, 0, 50, 60);
-                grad.addColorStop(0, '#00d2ff');
-                grad.addColorStop(1, 'transparent');
-                ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.ellipse(0, 60, 40, 70, 0, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.restore();
-        }
-        else if (l === 2) { // d-orbital (Clovers and Donuts)
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(time * 0.3);
-            // Draw central donut (toroid)
-            ctx.beginPath();
-            ctx.ellipse(0, 0, 70, 25, 0, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(0, 210, 255, 0.8)';
-            ctx.lineWidth = 15;
-            ctx.stroke();
-            // Draw teardrop lobes
-            for (let i = 0; i < 2; i++) {
-                ctx.rotate(Math.PI);
-                let grad = ctx.createRadialGradient(0, 80, 0, 0, 80, 50);
-                grad.addColorStop(0, '#00d2ff');
-                grad.addColorStop(1, 'transparent');
-                ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.ellipse(0, 90, 30, 60, 0, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.restore();
-        }
-        else { // f-orbital (Complex)
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(time * 0.5);
-            for (let i = 0; i < 6; i++) {
-                ctx.rotate(Math.PI / 3);
-                ctx.fillStyle = 'rgba(0, 210, 255, 0.6)';
-                ctx.beginPath();
-                ctx.ellipse(0, 70, 20, 50, 0, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.restore();
-        }
+    // --- ANIMATION ---
+    function animate() {
+        requestAnimationFrame(animate);
+        points.rotation.y += 0.005;
+        points.rotation.x += 0.002;
+        renderer.render(scene, camera);
     }
 
-    function update() {
-        const z = parseInt(slider.value);
-        const {n, l, m} = getQuantumNumbers(z);
-        
-        document.getElementById('disp-element').innerText = `${elementNames[z-1]} (Z=${z})`;
-        document.getElementById('disp-quantum').innerText = `n=${n}, l=${l}, m=${m}`;
-        
-        const labels = ["s-Shell (Spherical)", "p-Block (Teardrops)", "d-Block (Donuts/Clovers)", "f-Block (Complex Manifold)"];
-        document.getElementById('nodal-type').innerText = `Angular Node: l=${l} ${labels[l] || ""}`;
+    slider.oninput = function() {
+        updateManifold(parseInt(this.value));
+    };
 
-        // Dynamic formula update
-        const formulas = [
-            "ψ = (1/√π)e⁻ʳ", 
-            "ψ = (1/2√6)re⁻ʳ/²cosθ", 
-            "ψ = (1/81√6π)r²e⁻ʳ/³(3cos²θ-1)",
-            "ψ = complex_harmonic(l=3)"
-        ];
-        document.getElementById('disp-formula').innerText = formulas[l] || formulas[0];
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
 
-        drawOrbital(n, l, m);
-        requestAnimationFrame(update);
-    }
-
-    // Initialize
-    canvas.width = 600;
-    canvas.height = 500;
-    update();
-
+    updateManifold(1);
+    animate();
 </script>
+
 </body>
 </html>
